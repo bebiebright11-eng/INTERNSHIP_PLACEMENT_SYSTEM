@@ -1,12 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, StudentProfile, AcademicSupervisorProfile
 
-@admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    # This adds the 'role' field to the User edit page in Admin
+    # Add 'role' to the fieldsets so it appears when editing a user
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('role',)}),
     )
+    # Add 'role' to the creation form
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('role',)}),
+    )
     list_display = ['username', 'email', 'role', 'is_staff']
-    list_filter = ['role', 'is_staff']
+
+admin.site.register(User, CustomUserAdmin)
+admin.site.register(StudentProfile)
+admin.site.register(AcademicSupervisorProfile)
