@@ -7,8 +7,8 @@ class WeeklyLogInline(admin.TabularInline):
 
 @admin.register(InternshipPlacement)
 class InternshipPlacementAdmin(admin.ModelAdmin):
-    list_display = ('student', 'organization', 'status', 'academic_supervisor')
-    list_filter = ('status', 'organization', 'academic_supervisor')
+    list_display = ('student', 'organizations', 'status', 'academic_supervisor')
+    list_filter = ('status', 'organizations', 'academic_supervisor')
     search_fields = ('student__username', 'organization__name')
     inlines = [WeeklyLogInline]
 

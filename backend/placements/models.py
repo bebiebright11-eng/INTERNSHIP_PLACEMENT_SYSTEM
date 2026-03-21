@@ -15,7 +15,7 @@ class InternshipPlacement(models.Model):
         on_delete=models.CASCADE, 
         related_name='placement'
     )
-    organization = models.ForeignKey(
+    organizations = models.ForeignKey(
         Organization, 
         on_delete=models.CASCADE, 
         related_name='placements'
