@@ -1,0 +1,43 @@
+# 🔹 Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.log
+
+# 🔹 Virtual Environment
+venv/
+env/
+ENV/
+
+# 🔹 Django Static & Media
+staticfiles/
+media/
+
+# 🔹 Environment Variables (VERY IMPORTANT)
+.env
+
+# 🔹 Migrations (optional rule)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# 🔹 Node / React
+node_modules/
+build/
+dist/
+
+# 🔹 VS Code / Editor
+.vscode/
+.idea/
+
+# 🔹 OS files
+.DS_Store
+Thumbs.db
+
+# 🔹 Coverage / Testing
+.coverage
+htmlcov/
+
+# 🔹 Misc
+*.swp
+*.bak
