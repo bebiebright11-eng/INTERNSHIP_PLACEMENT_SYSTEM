@@ -45,3 +45,12 @@ class AcademicSupervisorProfile(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+class Organization(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    email = models.EmailField()
+
+    def __str__ (self):
+       return self.name
