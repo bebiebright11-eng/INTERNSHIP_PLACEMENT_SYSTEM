@@ -18,7 +18,9 @@ class InternshipPlacement(models.Model):
     organization = models.ForeignKey(
         "accounts.Organization", 
         on_delete=models.CASCADE, 
-        related_name='placements'
+        related_name='placements',
+        null=True,
+        blank=True
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     

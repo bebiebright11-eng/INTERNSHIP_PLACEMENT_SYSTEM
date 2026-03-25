@@ -22,7 +22,7 @@ class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     registration_number = models.CharField(max_length=50, unique=True)
     course = models.CharField(max_length=100)
-    year_of_study = models.PositiveBigIntegerField()
+    year_of_study = models.PositiveBigIntegerField(null=True,blank=True)
     is_eligible=models.BooleanField(default=False)
     cv=models.FileField(upload_to='cvs/', null=True , blank=True)
 
