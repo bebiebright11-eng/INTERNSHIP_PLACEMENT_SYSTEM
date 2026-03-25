@@ -125,11 +125,12 @@ class WorkplaceSupervisorRegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
 
-        # Link to the organization provided in the profile data
-        WorkplaceSupervisorProfile.objects.create(
-            user=user, 
-            **profile_data
+        WorkplaceSupervisorProfile.objects.update_or_create(
+            user=user,
+            defaults=profile_data
         )
+        
+        user.refresh_from_db()
 
         return user        
 
