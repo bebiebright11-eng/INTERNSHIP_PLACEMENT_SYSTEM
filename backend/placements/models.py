@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 from organizations.models import Organization
 # Import the profile to ensure we link correctly
 from accounts.models import StudentProfile 
@@ -27,8 +28,7 @@ class InternshipPlacement(models.Model):
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     
-    workplace_supervisor = models.CharField(max_length=255, blank=True)
-    
+    workplace_supervisor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='workplace_placements')
     # Change 3: Points to the User model but filters for the correct role
     academic_supervisor = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -73,4 +73,20 @@ class WeeklyLog(models.Model):
     supervisor_feedback = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
+
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only do this when a NEW log is created
+            # Find the highest week number already submitted for THIS placement
+            last_log = WeeklyLog.objects.filter(placement=self.placement).order_by('-week_number').first()
+            if last_log:
+                self.week_number = last_log.week_number + 1
+            else:
+                self.week_number = 1  # First log ever
+        super().save(*args, **kwargs) 
     
+    # Separate feedback and verification
+    workplace_feedback = models.TextField(blank=True, null=True)
+    academic_feedback = models.TextField(blank=True, null=True)
+    
+    is_verified_by_workplace = models.BooleanField(default=False)    
