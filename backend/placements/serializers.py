@@ -19,14 +19,26 @@ class WeeklyLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyLog
         fields = '__all__'
+        extra_kwargs = {
+            'placement': {'required': False},
+            'week_number': {'required': False},
+            'tasks_performed': {'required': False},
+        }
 
     def validate(self, data):
-        """
-        Validation: Only allow logs if the placement is APPROVED.
-        """
+        # 1. Try to get placement from the data (for New Logs)
         placement = data.get('placement')
-        if placement.status != 'approved':
-            raise serializers.ValidationError(
-                "You cannot submit weekly logs until your internship placement has been approved."
-            )
+        
+        # 2. If placement is NOT in the data (like in a PATCH request), 
+        #    we check the existing instance if it's an update.
+        if placement is None and self.instance:
+            placement = self.instance.placement
+
+        # 3. Now check the status only if we actually have a placement object
+        if placement:
+            if placement.status != 'approved':
+                raise serializers.ValidationError(
+                    "You cannot submit weekly logs until your internship placement has been approved."
+                )
+        
         return data

@@ -39,3 +39,18 @@ class WeeklyLogListCreateView(generics.ListCreateAPIView):
 
         # 3. If approved, save the log
         serializer.save()
+
+
+class SupervisorLogReviewView(generics.UpdateAPIView, generics.ListAPIView):
+    serializer_class = WeeklyLogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Ensure only Workplace Supervisors can see this
+        if user.role == 'workplace_sup':
+            # Filter logs: Only show logs for the organization this supervisor belongs to
+            return WeeklyLog.objects.filter(
+                placement__organizations=user.workplace_profile.organizations
+            )
+        return WeeklyLog.objects.none()
