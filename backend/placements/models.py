@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from organizations.models import Organization
+# Import the profile to ensure we link correctly
+from accounts.models import StudentProfile 
 
 class InternshipPlacement(models.Model):
     STATUS_CHOICES = (
@@ -9,9 +11,9 @@ class InternshipPlacement(models.Model):
         ('rejected', 'Rejected'),
     )
 
-    # settings.AUTH_USER_MODEL ensures we point to your custom User in accounts
+    # Change 1: Link to StudentProfile instead of just User
     student = models.OneToOneField(
-        settings.AUTH_USER_MODEL, 
+        StudentProfile, 
         on_delete=models.CASCADE, 
         related_name='placement'
     )
@@ -22,25 +24,27 @@ class InternshipPlacement(models.Model):
         null=True,
         blank=True
     )
+    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     
-    # Workplace Supervisor is often a plain name initially, 
-    # but Academic Supervisor must be a User with the correct role.
     workplace_supervisor = models.CharField(max_length=255, blank=True)
+    
+    # Change 3: Points to the User model but filters for the correct role
     academic_supervisor = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
-        related_name='academic_students',
-        limit_choices_to={'role': 'academic_sup'} # Only shows academic supervisors in Admin
+        related_name='supervised_placements',
+        limit_choices_to={'role': 'academic_sup'} 
     )
 
     final_score = models.IntegerField(null=True, blank=True)
     final_evaluation_comments = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.student.username} at {self.organization.name}"
+        # FIX: Changed 'organization' to 'organizations' to match the field name
+        return f"{self.student.user.username} at {self.organizations.name}"
 
 class WeeklyLog(models.Model):
     placement = models.ForeignKey(
@@ -57,4 +61,4 @@ class WeeklyLog(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Week {self.week_number} - {self.placement.student.username}"
+        return f"Week {self.week_number} - {self.placement.student.user.username}"
