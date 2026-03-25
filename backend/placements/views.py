@@ -68,3 +68,12 @@ class SupervisorLogReviewView(generics.UpdateAPIView, generics.ListAPIView):
                 placement__organizations=user.workplace_profile.organizations
             )
         return WeeklyLog.objects.none()
+    
+
+class AssignedStudentsListView(generics.ListAPIView):
+    serializer_class = InternshipPlacementSerializer # Assuming you have this
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # User Story: "Only see students I am supervising"
+        return InternshipPlacement.objects.filter(academic_supervisor=self.request.user)    
