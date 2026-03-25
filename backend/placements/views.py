@@ -94,4 +94,20 @@ class FinalReportUploadView(generics.UpdateAPIView):
             raise ValidationError("You can only upload reports for your own placement.")
         
         # Automatically set the submission timestamp
-        serializer.save(report_submitted_at=timezone.now())    
+        serializer.save(report_submitted_at=timezone.now())  
+
+class FinalGradingView(generics.UpdateAPIView):
+    queryset = InternshipPlacement.objects.all()
+    serializer_class = InternshipPlacementSerializer
+    permission_classes = [IsAssignedSupervisor] # Using the custom permission we made!
+
+    def perform_update(self, serializer):
+        # 1. Validation: Ensure a report exists before grading
+        placement = self.get_object()
+        if not placement.final_report:
+            raise ValidationError({
+                "error": "You cannot grade this student until they have uploaded their final report."
+            })
+
+        # 2. Automatically set status to COMPLETED when graded
+        serializer.save(status='COMPLETED')          
