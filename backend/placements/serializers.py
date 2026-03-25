@@ -18,13 +18,13 @@ class InternshipPlacementSerializer(serializers.ModelSerializer):
 class WeeklyLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyLog
-        fields = '__all__'
-        extra_kwargs = {
-            'placement': {'required': False},
-            'week_number': {'required': False},
-            'tasks_performed': {'required': False},
-        }
-
+        fields = [
+            'id', 'placement', 'week_number', 'tasks_performed', 
+            'challenges', 'attendance_days', 'supervisor_feedback', 
+            'status', 'submitted_at'
+        ]
+        # This prevents the user from manually sending a week number
+        read_only_fields = ['week_number', 'supervisor_feedback', 'status', 'submitted_at']
     def validate(self, data):
         # 1. Try to get placement from the data (for New Logs)
         placement = data.get('placement')
