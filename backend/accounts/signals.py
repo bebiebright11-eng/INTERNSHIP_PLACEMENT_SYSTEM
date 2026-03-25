@@ -6,8 +6,8 @@ from .models import User, StudentProfile, AcademicSupervisorProfile,WorkplaceSup
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.role == 'student':
-            StudentProfile.objects.create(user=instance,
-                                          year_of_study=1)
+            StudentProfile.objects.create(user=instance,year_of_study=1)
+            StudentProfile.objects.get_or_create(user=instance)
         elif instance.role == 'academic_sup':
             AcademicSupervisorProfile.objects.create(user=instance)
         elif instance.role == 'workplace_sup':
