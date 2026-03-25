@@ -41,6 +41,9 @@ class InternshipPlacement(models.Model):
 
     final_score = models.IntegerField(null=True, blank=True)
     final_evaluation_comments = models.TextField(blank=True)
+    final_report = models.FileField(upload_to='reports/', null=True, blank=True)
+    report_submitted_at = models.DateTimeField(null=True, blank=True)
+    grade = models.CharField(max_length=2, null=True, blank=True)
 
     def __str__(self):
         # FIX: Changed 'organization' to 'organizations' to match the field name
