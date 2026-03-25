@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import PlacementListCreateView, WeeklyLogListCreateView,SupervisorLogReviewView,AssignedStudentsListView,FinalReportUploadView
+from .views import (PlacementListCreateView, WeeklyLogListCreateView
+,SupervisorLogReviewView,AssignedStudentsListView,FinalReportUploadView,FinalGradingView)
 
 urlpatterns = [
     path('applications/', PlacementListCreateView.as_view(), name='placement-list'),
@@ -7,5 +8,6 @@ urlpatterns = [
     path('logs/review/<int:pk>/', SupervisorLogReviewView.as_view(), name='log-review'),
     path('assigned-students/', AssignedStudentsListView.as_view(), name='assigned-students'),
     path('placements/<int:pk>/upload-report/', FinalReportUploadView.as_view(), name='upload-report'),
+    path('placements/<int:pk>/grade/', FinalGradingView.as_view(), name='final-grading'),
 ]
 
