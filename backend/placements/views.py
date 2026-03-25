@@ -2,6 +2,8 @@ from rest_framework import generics, permissions
 from .models import InternshipPlacement, WeeklyLog
 from .serializers import InternshipPlacementSerializer, WeeklyLogSerializer
 from .permissions import IsAssignedSupervisor # Import your new class
+from django.utils import timezone
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class PlacementListCreateView(generics.ListCreateAPIView):
     serializer_class = InternshipPlacementSerializer
@@ -77,3 +79,19 @@ class AssignedStudentsListView(generics.ListAPIView):
     def get_queryset(self):
         # User Story: "Only see students I am supervising"
         return InternshipPlacement.objects.filter(academic_supervisor=self.request.user)    
+    
+
+
+class FinalReportUploadView(generics.UpdateAPIView):
+    queryset = InternshipPlacement.objects.all()
+    serializer_class = InternshipPlacementSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser] # Required for file uploads
+
+    def perform_update(self, serializer):
+        # Security: Ensure only the student who owns the placement can upload
+        if self.get_object().student.user != self.request.user:
+            raise ValidationError("You can only upload reports for your own placement.")
+        
+        # Automatically set the submission timestamp
+        serializer.save(report_submitted_at=timezone.now())    
