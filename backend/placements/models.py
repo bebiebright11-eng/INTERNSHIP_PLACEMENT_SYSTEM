@@ -52,13 +52,22 @@ class WeeklyLog(models.Model):
         on_delete=models.CASCADE, 
         related_name='logs'
     )
+
+    
     week_number = models.PositiveIntegerField()
     tasks_performed = models.TextField()
+    
+    # --- ADD THIS STATUS FIELD ---
+    LOG_STATUS = [
+        ('SUBMITTED', 'Submitted'),
+        ('REVIEWED', 'Reviewed'),
+    ]
+    status = models.CharField(max_length=20, choices=LOG_STATUS, default='SUBMITTED')
+    # -----------------------------
+
     challenges = models.TextField(blank=True)
     attendance_days = models.PositiveIntegerField(default=5)
-    
     supervisor_feedback = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Week {self.week_number} - {self.placement.student.user.username}"
+    

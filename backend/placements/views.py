@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from .models import InternshipPlacement, WeeklyLog
 from .serializers import InternshipPlacementSerializer, WeeklyLogSerializer
+from .permissions import IsAssignedSupervisor # Import your new class
 
 class PlacementListCreateView(generics.ListCreateAPIView):
     serializer_class = InternshipPlacementSerializer
@@ -39,6 +40,19 @@ class WeeklyLogListCreateView(generics.ListCreateAPIView):
 
         # 3. If approved, save the log
         serializer.save()
+
+
+
+
+class WeeklyLogReviewView(generics.UpdateAPIView):
+    queryset = WeeklyLog.objects.all()
+    serializer_class = WeeklyLogSerializer
+    # Add the permission here!
+    permission_classes = [IsAssignedSupervisor] 
+
+    def perform_update(self, serializer):
+        # You can also automate status changes here
+        serializer.save(status='REVIEWED')        
 
 
 class SupervisorLogReviewView(generics.UpdateAPIView, generics.ListAPIView):
