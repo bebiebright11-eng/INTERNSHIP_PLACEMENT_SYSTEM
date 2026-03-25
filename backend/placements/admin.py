@@ -11,3 +11,6 @@ class InternshipPlacementAdmin(admin.ModelAdmin):
 class WeeklyLogAdmin(admin.ModelAdmin):
     list_display = ('placement', 'week_number', 'submitted_at')
     list_filter = ('week_number',)
+    
+# Inside InternshipPlacementAdmin
+search_fields = ('student__user__username', 'organization__name', 'student__user__first_name')    
