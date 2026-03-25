@@ -5,7 +5,8 @@ from rest_framework.authtoken.models import Token
 from .serializers import (
     StudentRegistrationSerializer, 
     StudentUserSerializer, 
-    WorkplaceSupervisorUserSerializer
+    WorkplaceSupervisorUserSerializer,
+    AcademicSupervisorRegistrationSerializer
 )
 from .models import User
 
@@ -67,3 +68,11 @@ class UserProfileView(generics.RetrieveAPIView):
             return Response({"username": user.username, "role": user.role})
             
         return Response(serializer.data)
+    
+
+
+
+
+class AcademicSupervisorRegistrationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class =AcademicSupervisorRegistrationSerializer

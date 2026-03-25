@@ -24,3 +24,18 @@ class WeeklyLogListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         # Only show logs for the user's specific placement
         return WeeklyLog.objects.filter(placement__student__user=self.request.user)
+
+        try:
+            placement = InternshipPlacement.objects.get(id=placement_id)
+        except InternshipPlacement.DoesNotExist:
+            raise ValidationError({"error": "Placement record not found."})
+
+        # 2. Check the Status Gate
+        if placement.status != 'approved':
+            raise ValidationError({
+                "error": f"You cannot submit logs for a {placement.status} placement. "
+                         "Please wait for supervisor approval."
+            })
+
+        # 3. If approved, save the log
+        serializer.save()
