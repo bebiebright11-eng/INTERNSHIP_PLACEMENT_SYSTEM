@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, StudentProfile, AcademicSupervisorProfile
+from .models import User, StudentProfile, AcademicSupervisorProfile, Organization
 
 class CustomUserAdmin(UserAdmin):
     # Add 'role' to the fieldsets so it appears when editing a user
@@ -16,3 +16,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(StudentProfile)
 admin.site.register(AcademicSupervisorProfile)
+admin.site.register(Organization)
