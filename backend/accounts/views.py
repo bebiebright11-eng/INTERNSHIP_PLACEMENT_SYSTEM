@@ -6,7 +6,8 @@ from .serializers import (
     StudentRegistrationSerializer, 
     StudentUserSerializer, 
     WorkplaceSupervisorUserSerializer,
-    AcademicSupervisorRegistrationSerializer
+    AcademicSupervisorRegistrationSerializer,
+    WorkplaceSupervisorRegistrationSerializer,
 )
 from .models import User
 
@@ -76,3 +77,20 @@ class UserProfileView(generics.RetrieveAPIView):
 class AcademicSupervisorRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class =AcademicSupervisorRegistrationSerializer
+
+
+class WorkplaceSupervisorRegistrationView(generics.CreateAPIView):
+    serializer_class = WorkplaceSupervisorRegistrationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                "user": WorkplaceSupervisorUserSerializer(user).data,
+                "token": token.key,
+                "message": "Workplace Supervisor registered successfully!"
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
