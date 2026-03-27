@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Box, Heading, Text, Stack, Button, 
-  Divider, Alert, AlertIcon, Spinner, Center, Container, SimpleGrid, Stat, StatLabel, StatNumber
+  Box, Heading, Text, Stack, Button, Divider, Alert, AlertIcon, 
+  Spinner, Center, Container, Table, Thead, Tbody, Tr, Th, Td, 
+  TableContainer, Badge, Flex
 } from '@chakra-ui/react';
 import API from '../api';
 
@@ -10,7 +11,6 @@ const StudentDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Calling your Django 'UserProfileView'
         API.get('accounts/profile/')
             .then(res => {
                 setProfile(res.data);
@@ -22,72 +22,84 @@ const StudentDashboard = () => {
             });
     }, []);
 
-    if (loading) return <Center h="80vh"><Spinner size="xl" color="blue.500" /></Center>;
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        window.location.href = '/';
+    };
 
+    if (loading) return <Center h="80vh"><Spinner size="xl" color="blue.500" /></Center>;
     if (!profile) return <Center h="80vh"><Text>Error loading profile. Please log in again.</Text></Center>;
 
-    // Shortcut for the nested data we built in Django
+    // Matching your serializer: profile.profile contains student_profile data
     const studentData = profile.profile;
-    <StatNumber fontSize="lg">{studentData.registration_number}</StatNumber>
-    const handleLogout = () => {
-    localStorage.removeItem('token'); // Wipe the session
-    window.location.href = '/'; // Send them back to Login
-};
 
     return (
         <Container maxW="container.lg" py={10}>
             <Stack spacing={8}>
-                {/* 1. Welcome Header */}
-                <Box>
-                    <Heading size="xl">Welcome, {profile.first_name}!</Heading>
-                    <Text color="gray.600" fontSize="lg">Manage your internship placement and status here.</Text>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-    
-    <Button colorScheme="red" variant="outline" onClick={handleLogout}>
-        Logout
-    </Button>
-</Box>
+                
+                {/* 1. Header with Name and Logout */}
+                <Flex justifyContent="space-between" alignItems="center" bg="white" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
+                    <Box>
+                        <Heading size="lg" color="blue.800">
+                            Welcome, {profile?.first_name || "Student"}!
+                        </Heading>
+                        <Text color="gray.600">Internship Placement System Portal</Text>
+                    </Box>
+                    <Button colorScheme="red" variant="outline" size="sm" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                </Flex>
+
+                {/* 2. Academic Information Table */}
+                <Box bg="white" p={6} borderRadius="xl" shadow="md" borderWidth="1px">
+                    <Heading size="md" mb={4} color="gray.700">Academic Details</Heading>
+                    <TableContainer>
+                        <Table variant="simple">
+                            <Thead bg="gray.50">
+                                <Tr>
+                                    <Th>Information Field</Th>
+                                    <Th>Details</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                <Tr>
+                                    <Td fontWeight="bold">Registration Number</Td>
+                                    <Td>{studentData?.registration_number}</Td>
+                                    <Td><Badge colorScheme="blue">Verified</Badge></Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight="bold">Course</Td>
+                                    <Td textTransform="capitalize">{studentData?.course}</Td>
+                                    <Td><Badge colorScheme="green">Enrolled</Badge></Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight="bold">Year of Study</Td>
+                                    <Td>Year {studentData?.year_of_study}</Td>
+                                    <Td><Badge colorScheme="purple">Active</Badge></Td>
+                                </Tr>
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
                 </Box>
 
-                {/* 2. Quick Stats Grid */}
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
-                    <Box p={5} shadow="base" borderWidth="1px" borderRadius="md" bg="white">
-                        <Stat>
-                            <StatLabel color="gray.500">Registration Number</StatLabel>
-                            <StatNumber fontSize="lg">{studentData.registration_number}</StatNumber>
-                        </Stat>
-                    </Box>
-                    <Box p={5} shadow="base" borderWidth="1px" borderRadius="md" bg="white">
-                        <Stat>
-                            <StatLabel color="gray.500">Course</StatLabel>
-                            <StatNumber fontSize="lg">{studentData.course}</StatNumber>
-                        </Stat>
-                    </Box>
-                    <Box p={5} shadow="base" borderWidth="1px" borderRadius="md" bg="white">
-                        <Stat>
-                            <StatLabel color="gray.500">Year of Study</StatLabel>
-                            <StatNumber fontSize="lg">Year {studentData.year_of_study}</StatNumber>
-                        </Stat>
-                    </Box>
-                </SimpleGrid>
-
                 {/* 3. Eligibility Status Area */}
-                <Box p={8} borderWidth="1px" borderRadius="xl" bg="white" shadow="sm">
+                <Box p={8} borderWidth="1px" borderRadius="xl" bg="white" shadow="sm" borderTop="4px solid" borderColor={studentData?.is_eligible ? "green.400" : "orange.400"}>
                     <Heading size="md" mb={4}>Placement Eligibility</Heading>
                     
-                    {studentData.is_eligible ? (
+                    {studentData?.is_eligible ? (
                         <Stack spacing={4}>
-                            <Alert status="success" variant="left-accent">
+                            <Alert status="success" variant="left-accent" borderRadius="md">
                                 <AlertIcon />
                                 You are officially eligible for internship placement!
                             </Alert>
-                            <Button colorScheme="blue" size="lg" w="full">
+                            <Button colorScheme="blue" size="lg" w="full" shadow="md">
                                 Find a Placement Now
                             </Button>
                         </Stack>
                     ) : (
                         <Stack spacing={4}>
-                            <Alert status="warning" variant="left-accent">
+                            <Alert status="warning" variant="left-accent" borderRadius="md">
                                 <AlertIcon />
                                 Eligibility Pending: Please ensure your documents are verified by your supervisor.
                             </Alert>
