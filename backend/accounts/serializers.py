@@ -92,11 +92,30 @@ class StudentRegistrationSerializer(serializers.ModelSerializer):
         return user
 # --- 4. Display Serializers (For React GET requests) ---
 class StudentUserSerializer(serializers.ModelSerializer):
-    profile = StudentProfileSerializer(source='student_profile', read_only=True)
+    # REMOVE 'read_only=True' so we can actually send data TO the profile
+    profile = StudentProfileSerializer(source='student_profile') 
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
 
+    # ADD THIS: This tells Django HOW to save the nested profile data
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', None)
+        
+        # 1. Update the User fields (email, names, etc.)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # 2. Update the Profile fields (eligibility, course, etc.)
+        if profile_data:
+            profile = instance.student_profile
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+
+        return instance
 class WorkplaceSupervisorUserSerializer(serializers.ModelSerializer):
     profile = WorkplaceSupervisorProfileSerializer(source='workplace_profile')
     class Meta:

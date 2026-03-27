@@ -1,7 +1,9 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 from .serializers import (
     StudentRegistrationSerializer, 
     StudentUserSerializer, 
@@ -56,24 +58,37 @@ class CustomLoginView(ObtainAuthToken):
         })
 
 # 3. User Profile View (GET - retrieves data for the logged-in user)
-class UserProfileView(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        if user.role == 'student':
-            serializer = StudentUserSerializer(user)
-        elif user.role == 'workplace_sup':
-            serializer = WorkplaceSupervisorUserSerializer(user)
-        else:
-            return Response({"username": user.username, "role": user.role})
-            
-        return Response(serializer.data)
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     
+    # Use the serializer that knows about the 'profile' source
+    serializer_class = StudentUserSerializer 
 
+    def get_object(self):
+        # This tells the view to always grab the logged-in user
+        return self.request.user
 
-
-
+    def patch(self, request, *args, **kwargs):
+        # 1. Get the user and their profile
+        user = self.get_object()
+        profile = user.student_profile
+        
+        # 2. Look inside the 'profile' box in your Postman message
+        profile_data = request.data.get('profile', {})
+        
+        # 3. If 'is_eligible' is in there, save it!
+        if 'is_eligible' in profile_data:
+            profile.is_eligible = profile_data['is_eligible']
+            profile.save()
+            
+        # 4. Send back the updated data
+        serializer = self.get_serializer(user)
+        return Response({
+            "message": "Eligibility updated successfully",
+            "is_eligible": profile.is_eligible,
+            "profile": serializer.data['profile']
+        })
 class AcademicSupervisorRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class =AcademicSupervisorRegistrationSerializer
