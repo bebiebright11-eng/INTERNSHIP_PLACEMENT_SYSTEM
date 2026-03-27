@@ -27,7 +27,12 @@ const StudentDashboard = () => {
     if (!profile) return <Center h="80vh"><Text>Error loading profile. Please log in again.</Text></Center>;
 
     // Shortcut for the nested data we built in Django
-    const studentData = profile.student_profile;
+    const studentData = profile.profile;
+    <StatNumber fontSize="lg">{studentData.registration_number}</StatNumber>
+    const handleLogout = () => {
+    localStorage.removeItem('token'); // Wipe the session
+    window.location.href = '/'; // Send them back to Login
+};
 
     return (
         <Container maxW="container.lg" py={10}>
@@ -36,6 +41,12 @@ const StudentDashboard = () => {
                 <Box>
                     <Heading size="xl">Welcome, {profile.first_name}!</Heading>
                     <Text color="gray.600" fontSize="lg">Manage your internship placement and status here.</Text>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+    
+    <Button colorScheme="red" variant="outline" onClick={handleLogout}>
+        Logout
+    </Button>
+</Box>
                 </Box>
 
                 {/* 2. Quick Stats Grid */}
