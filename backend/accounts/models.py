@@ -22,7 +22,7 @@ class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     registration_number = models.CharField(max_length=50, unique=True)
     course = models.CharField(max_length=100)
-    year_of_study = models.PositiveIntegerField()
+    year_of_study = models.PositiveIntegerField(null=True,blank=True)
     is_eligible=models.BooleanField(default=False)
     cv=models.FileField(upload_to='cvs/', null=True , blank=True)
 
@@ -47,3 +47,12 @@ class AcademicSupervisorProfile(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+class Organization(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    email = models.EmailField()
+
+    def __str__ (self):
+       return self.name
