@@ -9,7 +9,7 @@ class WeeklyLogInline(admin.TabularInline):
 
 @admin.register(InternshipPlacement)
 class InternshipPlacementAdmin(admin.ModelAdmin):
-    list_display = ('student', 'organization', 'status', 'academic_supervisor','workplace_supervisor','is_eligible')
+    list_display = ('student', 'organizations', 'status', 'academic_supervisor','workplace_supervisor','is_eligible')
 
     actions = ['verify_and_approve_placements']
 
@@ -41,7 +41,7 @@ class InternshipPlacementAdmin(admin.ModelAdmin):
     )
     
     # 3. SIDEBAR FILTERS
-    list_filter = ('status', 'organization', 'academic_supervisor','workplace_supervisor')
+    list_filter = ('status', 'organizations', 'academic_supervisor','workplace_supervisor')
     
     # 4. CLICKABLE FIELDS
     list_display_links = ('student',)
