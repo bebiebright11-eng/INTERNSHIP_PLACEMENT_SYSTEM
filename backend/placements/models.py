@@ -12,14 +12,15 @@ class InternshipPlacement(models.Model):
         ('rejected', 'Rejected'),
     )
 
-    # Change 1: Link to StudentProfile instead of just User
     student = models.OneToOneField(
         StudentProfile, 
         on_delete=models.CASCADE, 
         related_name='placement'
     )
-    organization = models.ForeignKey(
-        "accounts.Organization", 
+    
+    # You named the field 'organizations' (plural)
+    organizations = models.ForeignKey(
+        "organizations.Organization", 
         on_delete=models.CASCADE, 
         related_name='placements',
         null=True,
@@ -28,8 +29,13 @@ class InternshipPlacement(models.Model):
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     
-    workplace_supervisor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='workplace_placements')
-    # Change 3: Points to the User model but filters for the correct role
+    workplace_supervisor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='workplace_placements'
+    )
+    
     academic_supervisor = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.SET_NULL, 
@@ -46,9 +52,13 @@ class InternshipPlacement(models.Model):
     grade = models.CharField(max_length=2, null=True, blank=True)
 
     def __str__(self):
-        # FIX: Changed 'organization' to 'organizations' to match the field name
-        return f"{self.student.user.username} at {self.organizations.name}"
-
+        # We check if organizations exists first
+        org_name = self.organizations.name if self.organizations else "No Organization"
+        
+        # Accessing student -> user -> username
+        student_name = self.student.user.username if self.student and self.student.user else "Unknown Student"
+        
+        return f"{student_name} at {org_name}"
 class WeeklyLog(models.Model):
     placement = models.ForeignKey(
         InternshipPlacement, 
